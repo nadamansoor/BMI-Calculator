@@ -1,4 +1,6 @@
+import 'package:BMI/pages/stepper.dart';
 import 'package:flutter/material.dart';
+import 'package:BMI/pages/bmlRes.dart';
 
 class BMICalculator extends StatefulWidget {
   const BMICalculator({super.key});
@@ -10,13 +12,22 @@ class BMICalculator extends StatefulWidget {
 class _BMICalculatorState extends State<BMICalculator> {
   String genderSelection = '';
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController birthDateController = TextEditingController();
 
   final TextEditingController heightController = TextEditingController(text: '160');
   final TextEditingController weightController = TextEditingController(text: '60');
 
   int height = 160;
   int weight = 60;
+  DateTime? selectedDate;
+
+  int calculateAge(DateTime birthDate) {
+    final today = DateTime.now();
+    int age = today.year - birthDate.year;
+    if (today.month < birthDate.month || (today.month == birthDate.month && today.day < birthDate.day)) {
+      age--;
+    }
+    return age;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +57,39 @@ class _BMICalculatorState extends State<BMICalculator> {
               children: [Text('Birth Date', style: TextStyle(fontSize: 16))],
             ),
             const SizedBox(height: 10),
-            CustomTextFormField(controller: birthDateController),
+            GestureDetector(
+              onTap: () async {
+                final DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime(2000),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(),
+                );
+                if (picked != null) {
+                  setState(() {
+                    selectedDate = picked;
+                  });
+                }
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  selectedDate != null
+                      ? '${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}'
+                      : 'Select Birth Date',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
             const SizedBox(height: 20),
             const Row(
               children: [
-                Text(
-                  'Choose Gender',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
+                Text('Choose Gender', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               ],
             ),
             const SizedBox(height: 10),
@@ -162,17 +198,19 @@ class _BMICalculatorState extends State<BMICalculator> {
     final double heightInMeters = height / 100;
     final double bmi = weight / (heightInMeters * heightInMeters);
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Your BMI Result'),
-        content: Text('Your BMI is ${bmi.toStringAsFixed(1)}'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BMIResultScreen(
+          name: nameController.text,
+          gender: genderSelection,
+          birthDate: selectedDate != null
+              ? '${calculateAge(selectedDate!)} years old'
+              : 'N/A',
+          height: height.toDouble(),
+          weight: weight.toDouble(),
+          bmi: bmi,
+        ),
       ),
     );
   }
@@ -180,144 +218,8 @@ class _BMICalculatorState extends State<BMICalculator> {
   @override
   void dispose() {
     nameController.dispose();
-    birthDateController.dispose();
     heightController.dispose();
     weightController.dispose();
     super.dispose();
-  }
-}
-
-class CustomTextFormField extends StatelessWidget {
-  final TextEditingController controller;
-  final TextInputType? keyboardType;
-
-  const CustomTextFormField({
-    super.key,
-    required this.controller,
-    this.keyboardType,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        filled: true,
-        fillColor: Colors.grey[200],
-      ),
-    );
-  }
-}
-
-class GenderOption extends StatelessWidget {
-  final String gender;
-  final bool isSelected;
-  final String imagePath;
-  final VoidCallback onTap;
-
-  const GenderOption({
-    super.key,
-    required this.gender,
-    required this.isSelected,
-    required this.imagePath,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: onTap,
-          child: Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: isSelected ? const Color(0xFFF1B44A) : Colors.transparent,
-                width: 3,
-              ),
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          gender,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        )
-      ],
-    );
-  }
-}
-
-class StepperBox extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-  final VoidCallback onIncrement;
-  final VoidCallback onDecrement;
-  final ValueChanged<String> onChanged;
-
-  const StepperBox({
-    super.key,
-    required this.label,
-    required this.controller,
-    required this.onIncrement,
-    required this.onDecrement,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-        const SizedBox(height: 10),
-        Container(
-          height: 60,
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.remove),
-                onPressed: onDecrement,
-              ),
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                  ),
-                  onChanged: onChanged,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: onIncrement,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 }
