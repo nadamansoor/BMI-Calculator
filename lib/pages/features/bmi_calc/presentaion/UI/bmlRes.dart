@@ -1,4 +1,3 @@
-import 'package:BMI/pages/stepper.dart';
 import 'package:flutter/material.dart';
 
 class BMIResultScreen extends StatelessWidget {
@@ -18,7 +17,7 @@ class BMIResultScreen extends StatelessWidget {
     required this.weight,
     required this.bmi,
   });
-//
+
   String getBMICategory() {
     if (bmi < 18.5) {
       return 'Under Weight';
@@ -45,6 +44,7 @@ class BMIResultScreen extends StatelessWidget {
         return '';
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -88,13 +88,13 @@ class BMIResultScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   
-                // Icon img
+                
                   Icon(
                       gender == 'male'
                           ? Icons.boy
                           : gender == 'female'
                               ? Icons.girl
-                              : Icons.accessibility_new, // افتراضية لو ما اختارش
+                              : Icons.accessibility_new,
                       size: 90,
                       color: Colors.white,
                     )

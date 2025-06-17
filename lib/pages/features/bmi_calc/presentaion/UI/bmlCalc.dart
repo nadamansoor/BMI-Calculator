@@ -1,6 +1,6 @@
-import 'package:BMI/pages/stepper.dart';
+import 'package:BMI/pages/features/bmi_calc/presentaion/Components/stepper.dart';
 import 'package:flutter/material.dart';
-import 'package:BMI/pages/bmlRes.dart';
+import 'package:BMI/pages/features/bmi_calc/presentaion/UI/bmlRes.dart';
 
 class BMICalculator extends StatefulWidget {
   const BMICalculator({super.key});
@@ -33,6 +33,7 @@ class _BMICalculatorState extends State<BMICalculator> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'B M I',
           style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.w900),

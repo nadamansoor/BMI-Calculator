@@ -1,4 +1,4 @@
-import 'package:BMI/pages/bmlCalc.dart';
+import 'package:BMI/pages/features/bmi_calc/presentaion/UI/intro.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.yellow),
         useMaterial3: true,
       ),
-      home: const BMICalculator(),
+      home: const BMISplashScreen(),
     );
   }
 }
